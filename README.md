@@ -9,7 +9,7 @@ Building requires a native toolchain to build C++ code.
 Create an appropriate virtualenv and run
 
     pip install -r requirements.txt
-    python setup.py install
+    pip install -v .
 
 Look at examples/
 
@@ -22,4 +22,7 @@ and install with
   pip install /path/to/xxx.whl
 
 (The .whl is platform specific)
+
+Developing, places the .so extension in current directory
+ python setup.py build_ext --inplace
 

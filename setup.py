@@ -1,7 +1,6 @@
-import setuptools
-from distutils.core import setup
+from setuptools import setup
 from Cython.Build import cythonize
-from distutils.extension import Extension
+from setuptools.extension import Extension
 
 
 extensions = [
@@ -18,4 +17,5 @@ setup(
     author="Nils Olav Selåsdal",
     python_requires='>=3.9',
     ext_modules=cythonize(extensions, language_level = "3"),
+    setup_requires = ['setuptools>=59.6.0', 'Cython>=0.29.32'],
 )
