@@ -37,7 +37,7 @@ static void hex_encode(uint16_t val, char *result)
 bool SMSGIter::get_next_tag(const std::string &data, struct SMSGTag &t, bool mask_tag)
 {
     if (data.length() < offset +  5) { // at least one tag + 1 length digit or a ' '
-        if (data.length() == offset) {
+        if (data.length() == offset || data[offset] == '\n') {
             return false;
         }
         throw std::length_error("Message too short for decoding tag");
