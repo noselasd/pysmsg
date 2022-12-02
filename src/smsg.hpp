@@ -38,9 +38,10 @@ public:
     * @param t output of parsed tag/value
     * @param mask_tag whether to remove the top bit of the tag
     *                 that indicates a constructor
-    * @return SMSGResult , SMSG_OK if all is ok
+    * @return true if tag was extracted, false otherwise
+    * @exception std::exception subclasses on decoding errors
     */
-    SMSGResult get_next_tag(const std::string &data, struct SMSGTag &t, bool mask_tag = false);
+    bool get_next_tag(const std::string &data, struct SMSGTag &t, bool mask_tag = false) noexcept(false);
 
     /**
      * Reset the iterator to start from the beginning.
@@ -51,17 +52,22 @@ public:
     }
 };
 
-class SMSGSerializer {
+class SMSGEncoder {
 private:
     std::string buffer;
-    char scratch_buffer[16];
 public:
-    SMSGResult add_tag(const SMSGTag &tag, bool variable_len = false);
+    void add_tag(const SMSGTag &tag, bool variable_len = false);
 
     void reset()
     {
         buffer.resize(0);
     }
 
+    /**
+     * Finalizes the encoding, adding a 0 terminator tag and an optional newline
+     *
+     * @return string& containing the encoded message. Any operation on the
+     *         SMSGEncoder will invalidate this reference.
+    */
     const std::string& finalize(bool add_newline = true);
 };

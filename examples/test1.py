@@ -1,10 +1,11 @@
 import pysmsg
 
-xdr = b"9001 55554 abcd00000 \n"
-status, r = pysmsg.decode_smsg(xdr)
-print(status, r)
+smsg_xdr = b"9001 55554 abcd00000 \n"
+xdr = pysmsg.decode_smsg(smsg_xdr)
+print("Decoded", xdr)
 
-d = pysmsg.encode_smsg(r)
-print(d)
+smsg_encoded =  pysmsg.encode_smsg(xdr)
+print("Encoded ", smsg_encoded)
+print("Original", smsg_xdr)
 
 
