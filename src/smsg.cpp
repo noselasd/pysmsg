@@ -1,6 +1,5 @@
 #include "smsg.hpp"
 #include <charconv>
-#include <cstdio>
 #include <stdexcept>
 
 #define UC_STRINGIFY(x) UC_STRINGIFY_HLP(x)
@@ -97,7 +96,12 @@ void SMSGEncoder::add_tag(const SMSGTag &tag, bool variable_len)
 
     // length
     if (!variable_len) {
-        snprintf(tmp, sizeof tmp, "%zu", tag.value.length());
+        auto rc = std::to_chars(tmp, tmp + sizeof(tmp) - 1, tag.value.size());
+        if (rc.ec != std::errc()) {
+            throw std::runtime_error("Error converting tag length");
+        }
+        rc.ptr[0] = 0;
+
         buffer.append(tmp);
     }
 
