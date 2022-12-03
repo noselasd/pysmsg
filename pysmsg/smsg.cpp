@@ -19,11 +19,11 @@ static unsigned int fourxbt2int(const char *x)
    return ( (i0<<12) + (i1<<8) + (i2<<4) + i3 );
 }
 
-static const char hex_chars[] = "0123456789ABCDEF";
 
 // Fast hex encoder for uint16_t, result have to be atleast 5 bytes and will be nul terminated
 static void hex_encode(uint16_t val, char *result)
 {
+    static const char hex_chars[] = "0123456789ABCDEF";
     result[0] = hex_chars[(val >> 12) & 0x000f];
     result[1] = hex_chars[(val >> 8 ) & 0x000f];
     result[2] = hex_chars[(val >> 4 ) & 0x000f];
@@ -57,7 +57,7 @@ bool SMSGIter::get_next_tag(const std::string &data, struct SMSGTag &t, bool mas
     if (data[offset] == ' ') {
         len = -2;
         ++offset;
-        t.value = std::string_view(&data[offset], 0);
+        t.value.resize(0);
     } else {
         auto rc = std::from_chars(&data[offset], data.data() + data.size(), len);
         if (rc.ec != std::errc() || len > MAX_VALUE_LEN) {
@@ -69,7 +69,7 @@ bool SMSGIter::get_next_tag(const std::string &data, struct SMSGTag &t, bool mas
             throw std::length_error("Tag length is larger than remaining data in the message");
         }
 
-        t.value = std::string_view(&data[offset], len);
+        t.value.assign(&data[offset], len);
         offset += len;
     }
 

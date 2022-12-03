@@ -1,8 +1,8 @@
 import pysmsg
 
 # Takes 3 seconds vs 30 seconds in python XDRParser
-with open("/home/noselasd/dev/data/dcdr.2022.06.26.06-100000", "rb") as input_file:
-    with open("/home/noselasd/dev/data/dcdr.2022.06.26.06-100000.pysmsg", "wb") as output_file:
+with open("/home/noselasd/dev/data/dcdr.2022.06.26.06-100000", "rb", 32768) as input_file:
+    with open("/home/noselasd/dev/data/dcdr.2022.06.26.06-100000.pysmsg", "wb", 32768) as output_file:
         while True:
             line = input_file.readline()
             if not line:
