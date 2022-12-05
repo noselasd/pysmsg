@@ -24,10 +24,10 @@ static unsigned int fourxbt2int(const char *x)
 static void hex_encode(uint16_t val, char *result)
 {
     static const char hex_chars[] = "0123456789ABCDEF";
-    result[0] = hex_chars[(val >> 12) & 0x000f];
-    result[1] = hex_chars[(val >> 8 ) & 0x000f];
-    result[2] = hex_chars[(val >> 4 ) & 0x000f];
-    result[3] = hex_chars[(val      ) & 0x000f];
+    result[0] = hex_chars[(val >> 12u) & 0x000f];
+    result[1] = hex_chars[(val >> 8u ) & 0x000f];
+    result[2] = hex_chars[(val >> 4u ) & 0x000f];
+    result[3] = hex_chars[(val       ) & 0x000f];
 
     result[4] = 0;
 }

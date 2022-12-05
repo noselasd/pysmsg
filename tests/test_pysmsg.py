@@ -1,4 +1,5 @@
 import pysmsg
+import pytest
 from collections import OrderedDict
 import sys
 
@@ -61,6 +62,27 @@ def test_decode_constructor_with_length():
         "tags": OrderedDict()
         }
     assert record == expected
+
+
+def test_decode_invalid():
+
+    # Too short type tag
+    with pytest.raises(Exception):
+        pysmsg.decode_smsg(b"9001")
+
+    with pytest.raises(Exception):
+        pysmsg.decode_smsg(b"")
+
+    with pytest.raises(Exception):
+        pysmsg.decode_smsg(b"\n")
+
+    # tag 1001 length exceeds message length
+    with pytest.raises(Exception):
+        pysmsg.decode_smsg(b"9001 10012 x")
+
+    # Invalid length
+    with pytest.raises(Exception):
+        pysmsg.decode_smsg(b"9001 1001a xxxxxxxxxx")
 
 
 
