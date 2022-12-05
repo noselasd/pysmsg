@@ -65,9 +65,10 @@ public:
 
     /**
      * Finalizes the encoding, adding a 0 terminator tag and an optional newline
-     *
+     * @param add_null_tag If the null tag terminator should be added at the end of the message
+     * @param add_newline If a \n should be added at the en of the message
      * @return string& containing the encoded message. Any operation on the
      *         SMSGEncoder will invalidate this reference.
     */
-    const std::string& finalize(bool add_newline = true);
+    const std::string& finalize(bool add_null_tag, bool add_newline);
 };

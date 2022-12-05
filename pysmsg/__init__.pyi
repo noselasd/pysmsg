@@ -1,3 +1,8 @@
+""" API for encoding/decoding UTEL SMSG format"""
+
+# This file contains type definitions for the pysmsg package
+# The actual code is written in Cython and C++
+
 def decode_smsg(data: bytes) -> dict:
     """ Decode an SMSG record.
         Args:
@@ -25,7 +30,7 @@ def decode_smsg(data: bytes) -> dict:
 
 
 
-def encode_smsg(msg: dict) -> bytes:
+def encode_smsg(msg: dict, add_null_tag : bool = True, add_newline : bool = True) -> bytes:
     """ Encodes an SMSG record.
         Args:
             data: a dict with the keys:
@@ -35,6 +40,9 @@ def encode_smsg(msg: dict) -> bytes:
                             type with a length, the "type_value" key maps
                             to a str of its value
                 "tags": dict of int->str mapping for SMSG tags->values.
+            add_null_tag: If the null terminator tag should be added after all other tags
+            add_newline:  if a newline should be added after all tags. Newline is the standard
+                          message separator for SMSGs
         Returns: Encoded SMSG as a byte string
 
     """
