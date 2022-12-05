@@ -17,7 +17,7 @@ setup(
     author="Nils Olav Selåsdal",
     python_requires=">=3.9",
     packages = ['pysmsg'],
-    package_data={"pysmsg": ["py.typed", "__init__.pyi"]},
+    package_data={"pysmsg": ["__init__.pyi"]},
     ext_modules=cythonize(extensions, language_level = "3"),
     setup_requires = ["setuptools>=59.6.0", "Cython>=0.29.32"],
 )
