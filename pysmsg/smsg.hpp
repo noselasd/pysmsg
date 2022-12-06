@@ -30,6 +30,7 @@ class SMSGIter {
 private:
     size_t offset = 0;
 public:
+
    /**
     * Get the next tag from the passed in data buffer.
     * data must be the same buffer each time.
@@ -58,11 +59,12 @@ private:
     bool add_null_tag = true;
     bool add_newline = true;
 public:
+
     void add_tag(const SMSGTag &tag, bool variable_len = false);
 
     void reset()
     {
-        buffer.resize(0);
+        buffer = std::string();
     }
 
     // * @param add If the null tag terminator should be added at the end of the message

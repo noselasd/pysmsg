@@ -15,59 +15,91 @@ cdef extern from "smsg.hpp":
         SMSGIter() except +
         bool get_next_tag(string&, SMSGTag &t) except +
         bool get_next_tag(string&, SMSGTag &t, bool masktag) except +
-        reset()
+        void reset()
 
     cdef cppclass SMSGEncoder:
         void add_tag(const SMSGTag &tag, bool variable_len) except +
         void set_add_newline(bool add)
         void set_add_null_tag(bool add)
+        void reset()
         const string& finalize()
 
+# Decode class wrappers. We keep all C++ instances around as class members.
+# Even though they're stateless, this helps us avoiding allocations.
 
-def decode_smsg(data: bytes) -> dict:
+cdef class Decoder:
     cdef SMSGIter it
     cdef SMSGTag tag
+    cdef string xdr
 
-    record = {}
-    tags = OrderedDict()
-    record["tags"] = tags
+    def decode(self, data: bytes) -> dict:
 
-    cdef string xdr = data
+        record = {}
+        tags = OrderedDict()
+        record["tags"] = tags
+
+        self.xdr = data
+
+        self.it.reset()
+
+        if not self.it.get_next_tag(self.xdr, self.tag, True):
+            raise Exception("Could not decode initial tag")
+
+        record["type"] = self.tag.tag
+        if not self.tag.value.empty():
+            record["type_value"] = self.tag.value.decode("UTF-8", "backslashreplace")
+
+        while self.it.get_next_tag(self.xdr, self.tag):
+            if self.tag.tag == 0: # termination tag
+                break
+            tags[self.tag.tag] = self.tag.value.decode("UTF-8", "backslashreplace")
+
+        return record
 
 
-    if not it.get_next_tag(xdr, tag, True):
-        raise Exception("Could not decode initial tag")
+cdef class Encoder:
+    cdef SMSGEncoder encoder
+    cdef SMSGTag tag
 
-    record["type"] = tag.tag
-    if not tag.value.empty():
-        record["type_value"] = tag.value.decode("UTF-8", "backslashreplace")
+    cdef reset(self):
+        self.encoder.reset()
+        self.tag.value.resize(0)
 
-    while it.get_next_tag(xdr, tag):
-        if tag.tag == 0: # termination tag
-            break
-        tags[tag.tag] = tag.value.decode("UTF-8", "backslashreplace")
+    def add_null_tag(self, add : bool) -> Encoder:
+        self.encoder.set_add_null_tag(add)
+        return self
 
-    return record
+    def add_newline(self, add : bool) -> Encoder:
+        self.encoder.set_add_newline(add)
+        return self
+
+    def encode(self, msg: dict) -> bytes:
+        cdef int type = msg["type"]
+
+        self.tag.tag = type
+        self.tag.ctor = True
+        self.reset()
+
+        # Record type
+        self.encoder.add_tag(self.tag, True)
+
+        # tags
+        for k, v in msg["tags"].items():
+            self.tag.tag = k
+            self.tag.value = bytes(str(v), "UTF-8")
+            self.tag.ctor = (self.tag.tag & 0x8000) != 0
+            self.encoder.add_tag(self.tag, False)
+
+
+        return self.encoder.finalize()
+
+def decode_smsg(data: bytes) -> dict:
+    return Decoder().decode(data)
 
 def encode_smsg(msg: dict, *, add_null_tag : bool = True, add_newline : bool = True) -> bytes:
 
-    cdef int type = msg["type"]
-    cdef SMSGEncoder encoder
-    cdef SMSGTag tag
-    encoder.set_add_null_tag(add_null_tag)
-    encoder.set_add_newline(add_newline)
+    encoder = Encoder()
+    encoder.add_null_tag(add_null_tag)
+    encoder.add_newline(add_newline)
 
-    tag.tag = type
-    tag.ctor = True
-    # Record type
-    encoder.add_tag(tag, True)
-
-    # tags
-    for k, v in msg["tags"].items():
-        tag.tag = k
-        tag.value = bytes(str(v), "UTF-8")
-        tag.ctor = (tag.tag & 0x8000) != 0
-        encoder.add_tag(tag, False)
-
-
-    return encoder.finalize()
+    return encoder.encode(msg)

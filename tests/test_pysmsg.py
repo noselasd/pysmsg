@@ -27,7 +27,8 @@ def test_decode_basic():
 
 def test_decode_no_terminator():
     # Null tag at end is not neccesary as long as the message ends
-    record = pysmsg.decode_smsg(b"9001 10004 ABCD20001 X")
+    decoder = pysmsg.Decoder()
+    record = decoder.decode(b"9001 10004 ABCD20001 X")
     expected = {
         "type": 0x1001,
         "tags": OrderedDict([
@@ -37,7 +38,7 @@ def test_decode_no_terminator():
     assert record == expected
 
     # New line at end should be accepted
-    record = pysmsg.decode_smsg(b"9001 10004 ABCD20001 X\n")
+    record = decoder.decode(b"9001 10004 ABCD20001 X\n")
     assert record == expected
 
 
@@ -87,6 +88,8 @@ def test_decode_invalid():
 
 
 def test_encode_basic():
+    encoder = pysmsg.Encoder()
+
     record = {
         "type": 0x1001,
         "tags": OrderedDict([
@@ -94,15 +97,20 @@ def test_encode_basic():
             (0x7fff, "æå")
         ])}
     expected = bytes("9001 100010 Hello 😀7FFF4 æå00000 \n", "UTF-8")
-    encoded = pysmsg.encode_smsg(record)
+    encoded = encoder.encode(record)
+    assert encoded == expected
+
+    # Test encoder reuse
+    encoded = encoder.encode(record)
     assert encoded == expected
 
     # Without null terminator tag
     expected = bytes("9001 100010 Hello 😀7FFF4 æå\n", "UTF-8")
-    encoded = pysmsg.encode_smsg(record, add_null_tag=False)
+    encoded = pysmsg.Encoder().add_null_tag(False).encode(record)
     assert encoded == expected
 
     # Without newline and null terminator tag
     expected = bytes("9001 100010 Hello 😀7FFF4 æå", "UTF-8")
-    encoded = pysmsg.encode_smsg(record, add_null_tag=False, add_newline=False)
+    encoded = pysmsg.Encoder().add_null_tag(False).add_newline(False).encode(record)
+
     assert encoded == expected
