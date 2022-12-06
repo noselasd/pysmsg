@@ -24,8 +24,8 @@ cdef extern from "smsg.hpp":
         void reset()
         const string& finalize()
 
-# Decode class wrappers. We keep all C++ instances around as class members.
-# Even though they're stateless, this helps us avoiding allocations.
+# Decode class wrappers. We keep all C++ instances around as class members
+# to reduce allocations.
 
 cdef class Decoder:
     cdef SMSGIter it
@@ -38,7 +38,7 @@ cdef class Decoder:
         tags = OrderedDict()
         record["tags"] = tags
 
-        self.xdr = data
+        self.xdr.assign(data)
 
         self.it.reset()
 
@@ -84,11 +84,11 @@ cdef class Encoder:
         self.encoder.add_tag(self.tag, True)
 
         # tags
-        for k, v in msg["tags"].items():
+        for k , v in msg["tags"].items():
             self.tag.tag = k
-            self.tag.value = bytes(str(v), "UTF-8")
+            self.tag.value.assign(bytes(str(v), "UTF-8"))
             self.tag.ctor = (self.tag.tag & 0x8000) != 0
-            self.encoder.add_tag(self.tag, False)
+            self.encoder.add_tag(self.tag, false)
 
 
         return self.encoder.finalize()

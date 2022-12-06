@@ -106,7 +106,7 @@ def test_encode_basic():
 
     # Without null terminator tag
     expected = bytes("9001 100010 Hello 😀7FFF4 æå\n", "UTF-8")
-    encoded = pysmsg.Encoder().add_null_tag(False).encode(record)
+    encoded = encoder.add_null_tag(False).encode(record)
     assert encoded == expected
 
     # Without newline and null terminator tag
