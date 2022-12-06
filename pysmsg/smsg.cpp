@@ -111,7 +111,7 @@ void SMSGEncoder::add_tag(const SMSGTag &tag, bool variable_len)
     buffer.append(tag.value);
 }
 
-const std::string& SMSGEncoder::finalize(bool add_null_tag, bool add_newline)
+const std::string& SMSGEncoder::finalize()
 {
     static const SMSGTag null_tag = {
         .tag = 0,

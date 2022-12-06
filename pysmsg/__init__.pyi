@@ -30,7 +30,7 @@ def decode_smsg(data: bytes) -> dict:
 
 
 
-def encode_smsg(msg: dict, add_null_tag : bool = True, add_newline : bool = True) -> bytes:
+def encode_smsg(msg: dict, add_null_tag : bool = True, *, add_newline : bool = True) -> bytes:
     """ Encodes an SMSG record.
         Args:
             data: a dict with the keys:

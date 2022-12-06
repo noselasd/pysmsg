@@ -55,6 +55,8 @@ public:
 class SMSGEncoder {
 private:
     std::string buffer;
+    bool add_null_tag = true;
+    bool add_newline = true;
 public:
     void add_tag(const SMSGTag &tag, bool variable_len = false);
 
@@ -63,12 +65,24 @@ public:
         buffer.resize(0);
     }
 
+    // * @param add If the null tag terminator should be added at the end of the message
+    void set_add_null_tag(bool add)
+    {
+        add_null_tag = add;
+    }
+
+    //* @param add If a \n should be added at the en of the message
+    void set_add_newline(bool add)
+    {
+        add_newline = add;
+    }
+
+
     /**
      * Finalizes the encoding, adding a 0 terminator tag and an optional newline
-     * @param add_null_tag If the null tag terminator should be added at the end of the message
-     * @param add_newline If a \n should be added at the en of the message
+
      * @return string& containing the encoded message. Any operation on the
      *         SMSGEncoder will invalidate this reference.
     */
-    const std::string& finalize(bool add_null_tag, bool add_newline);
+    const std::string& finalize();
 };

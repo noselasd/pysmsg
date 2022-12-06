@@ -19,7 +19,9 @@ cdef extern from "smsg.hpp":
 
     cdef cppclass SMSGEncoder:
         void add_tag(const SMSGTag &tag, bool variable_len) except +
-        const string& finalize(bool add_null_tag, bool add_newline)
+        void set_add_newline(bool add)
+        void set_add_null_tag(bool add)
+        const string& finalize()
 
 
 def decode_smsg(data: bytes) -> dict:
@@ -47,14 +49,13 @@ def decode_smsg(data: bytes) -> dict:
 
     return record
 
-def encode_smsg(msg: dict, add_null_tag : bool = True, add_newline : bool = True) -> bytes:
+def encode_smsg(msg: dict, *, add_null_tag : bool = True, add_newline : bool = True) -> bytes:
 
     cdef int type = msg["type"]
     cdef SMSGEncoder encoder
     cdef SMSGTag tag
-    # coerce to C++ only once:
-    cdef bool _null_tag = add_null_tag
-    cdef bool _newline = add_newline
+    encoder.set_add_null_tag(add_null_tag)
+    encoder.set_add_newline(add_newline)
 
     tag.tag = type
     tag.ctor = True
@@ -69,4 +70,4 @@ def encode_smsg(msg: dict, add_null_tag : bool = True, add_newline : bool = True
         encoder.add_tag(tag, False)
 
 
-    return encoder.finalize(add_null_tag = _null_tag, add_newline = _newline)
+    return encoder.finalize()
