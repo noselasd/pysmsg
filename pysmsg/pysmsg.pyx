@@ -88,7 +88,7 @@ cdef class Encoder:
             self.tag.tag = k
             self.tag.value.assign(bytes(str(v), "UTF-8"))
             self.tag.ctor = (self.tag.tag & 0x8000) != 0
-            self.encoder.add_tag(self.tag, false)
+            self.encoder.add_tag(self.tag, False)
 
 
         return self.encoder.finalize()
